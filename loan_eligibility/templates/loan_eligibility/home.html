@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card shadow p-4 mx-auto" style="max-width: 600px;">
+    <h3 class="text-center mb-4">🏦 Loan Eligibility Predictor</h3>
+
+    <form method="POST" action="/predict/">
+        {% csrf_token %}
+        <div class="row mb-2">
+            <div class="col">
+                <label>Gender</label>
+                <select name="gender" class="form-select" required>
+                    <option value="" disabled selected hidden>Select Gender</option>
+                    <option>Male</option>
+                    <option>Female</option>
+                </select>
+            </div>
+            <div class="col">
+                <label>Married</label>
+                <select name="married" class="form-select" required>
+                    <option value="" disabled selected hidden>Marital Status</option>
+                    <option>Yes</option>
+                    <option>No</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row mb-2">
+            <div class="col">
+                <label>Dependents</label>
+                <input type="number" name="dependents" class="form-control" min="0" required>
+            </div>
+            <div class="col">
+                <label>Education</label>
+                <select name="education" class="form-select" required>
+                    <option value="" disabled selected hidden>Select Education</option>
+                    <option>Graduate</option>
+                    <option>Not Graduate</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row mb-2">
+            <div class="col">
+                <label>Self Employed</label>
+                <select name="self_employed" class="form-select" required>
+                    <option value="" disabled selected hidden>Are you Self Employed?</option>
+                    <option>No</option>
+                    <option>Yes</option>
+                </select>
+            </div>
+            <div class="col">
+                <label>Credit History</label>
+                <select name="credit_history" class="form-select" required>
+                    <option value="" disabled selected hidden>Select Credit History</option>
+                    <option value="1.0">Good</option>
+                    <option value="0.0">Bad</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mb-2">
+            <label>Applicant Income</label>
+            <input type="number" name="applicant_income" class="form-control" min="0" required>
+        </div>
+
+        <div class="mb-2">
+            <label>Coapplicant Income</label>
+            <input type="number" name="coapplicant_income" class="form-control" min="0">
+        </div>
+
+        <div class="mb-2">
+            <label>Loan Amount</label>
+            <input type="number" name="loan_amount" class="form-control" min="0" required>
+        </div>
+
+        <div class="mb-2">
+            <label>Loan Amount Term (days)</label>
+            <input type="number" name="loan_amount_term" class="form-control" min="0" value="360">
+        </div>
+
+        <div class="mb-2">
+            <label>Property Area</label>
+            <select name="property_area" class="form-select" required>
+                <option value="" disabled selected hidden>Select Property Area</option>
+                <option>Rural</option>
+                <option>Semiurban</option>
+                <option>Urban</option>
+            </select>
+        </div>
+
+        <div class="text-center mt-3">
+            <button class="btn btn-primary">Check Eligibility</button>
+        </div>
+    </form>
+
+    {% if result %}
+        <div class="alert mt-4 {% if 'Eligible' in result %}alert-success{% elif 'Not Eligible' in result %}alert-danger{% else %}alert-warning{% endif %}" role="alert">
+            {{ result }}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
