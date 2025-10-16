@@ -3,6 +3,9 @@ import os
 import joblib
 import pandas as pd
 import xgboost as xgb
+import json
+import requests
+import markdown2
 
 # Load your saved Booster model
 MODEL_PATH = os.path.join(os.path.dirname(__file__), 'model', 'loan_model.pkl')
@@ -66,3 +69,33 @@ def predict(request):
 
     # GET request
     return render(request, 'loan_eligibility/home.html')
+
+def chatbot_view(request):
+    response_text = None
+
+    if request.method == 'POST':
+        user_input = request.POST.get('user_input', '')
+        if user_input:
+            OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+
+            headers = {
+                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                "Content-Type": "application/json",
+            }
+
+            data = {
+                "model": "alibaba/tongyi-deepresearch-30b-a3b:free",
+                "messages": [{"role": "user", "content": user_input}],
+            }
+
+            try:
+                r = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
+                r.raise_for_status()
+                result = r.json()
+                response_text = result["choices"][0]["message"]["content"]
+                response_text = markdown2.markdown(response_text)
+            except Exception as e:
+                response_text = f"Error: {e}"
+
+    return render(request, "loan_eligibility/chatbot.html", {"response": response_text})
+

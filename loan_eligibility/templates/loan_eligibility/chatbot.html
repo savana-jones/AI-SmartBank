@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+  <h3 class="mb-3">AI Chatbot</h3>
+  <form id="chat-form" method="POST">
+    {% csrf_token %}
+    <div class="mb-3 d-flex">
+        <textarea name="user_input" id="user_input" class="form-control me-2" rows="3" placeholder="Ask something..."></textarea>
+        <button type="button" id="mic-btn" class="btn btn-outline-secondary">🎤</button>
+    </div>
+    <button type="submit" class="btn btn-primary">Send</button>
+  </form>
+
+  {% if response %}
+  <div class="alert alert-info mt-3">
+    <strong>AI:</strong> {{ response|safe }}
+  </div>
+  {% endif %}
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const micBtn = document.getElementById("mic-btn");
+    const userInput = document.getElementById("user_input");
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        alert("Your browser does not support Speech Recognition.");
+        return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = "en-US";
+
+    micBtn.addEventListener("click", () => recognition.start());
+
+    recognition.onstart = () => micBtn.innerText = "🎙️ Listening...";
+    recognition.onresult = (event) => userInput.value = event.results[0][0].transcript;
+    recognition.onerror = (event) => console.error("Speech recognition error:", event.error);
+    recognition.onend = () => micBtn.innerText = "🎤";
+});
+</script>
+
+{% endblock %}
+
